@@ -46,18 +46,32 @@ regd_users.post("/login", (req, res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-
     const username = req.session.authorization['username']; // Retrieve the username from authorization object
     // Extract isbn parameter and find users with matching email
     const isbn = req.params.isbn;
     let book = books[isbn];
     let bookReviews = book.reviews;
+    let userReview = bookReviews[username];
     let review = req.body.review;
-    if (review) {
-        bookReviews[username] = review;
+    if (userReview) {
+        if (review) {
+            bookReviews[username] = review;
+        }
+        return res.status(200).json({ message: `Review for the book ISBN ${isbn} has been updated.` });
+    } else {
+        if (review) {
+            bookReviews[username] = review;
+        }
+        return res.status(200).json({ message: `Review for the book ISBN ${isbn} has been added.` });
     }
+});
 
-    return res.status(200).json({ message: "Your Review submitted successfully." });
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const username = req.session.authorization['username']; // Retrieve the username from authorization object
+    const isbn = req.params.isbn;
+    delete books[isbn].reviews[username];
+    
+    return res.status(200).json({ message: `Reviews for the book ISBN ${isbn} posted by the user ${username} deleted.` });
 });
 
 module.exports.authenticated = regd_users;

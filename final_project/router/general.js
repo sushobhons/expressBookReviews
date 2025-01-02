@@ -26,7 +26,8 @@ public_users.post("/register", (req, res) => {
 
 // Get the book list available in the shop
 public_users.get('/', function (req, res) {
-    res.send(JSON.stringify(books, null, 4));
+
+    res.send(JSON.stringify({books}, null, 4));
 });
 
 // Get book details based on ISBN
@@ -44,23 +45,27 @@ public_users.get('/author/:author', function (req, res) {
     const bookKeys = Object.keys(books);
 
     // Create an array to store the matched books
-    const matchedBooks = [];
+    const booksbyauthor = [];
 
     // Iterate through the books using the keys
     for (let key of bookKeys) {
         const book = books[key];
         if (book.author.toLowerCase() === author.toLowerCase()) {
-            matchedBooks.push(book);
+            booksbyauthor.push({
+                "isbn": key,
+                "title": book.title,
+                "reviews": book.reviews
+            });
         }
     }
 
     // If no books are found, return an error message
-    if (matchedBooks.length === 0) {
-        res.send("Unable to find book!");
+    if (booksbyauthor.length === 0) {
+        return res.status(404).json({ message: "Unable to find book!" });
     }
 
     // Return the matched books
-    return res.send(JSON.stringify(matchedBooks, null, 4));
+    res.send(JSON.stringify({booksbyauthor}, null, 4));
 });
 
 // Get all books based on title
@@ -71,23 +76,27 @@ public_users.get('/title/:title', function (req, res) {
     const bookKeys = Object.keys(books);
 
     // Create an array to store the matched books
-    const matchedBooks = [];
+    const booksbytitle = [];
 
     // Iterate through the books using the keys
     for (let key of bookKeys) {
         const book = books[key];
         if (book.title.toLowerCase() === title.toLowerCase()) {
-            matchedBooks.push(book);
+            booksbytitle.push({
+                "isbn": key,
+                "author": book.author,
+                "reviews": book.reviews
+            });
         }
     }
 
     // If no books are found, return an error message
-    if (matchedBooks.length === 0) {
-        res.send("Unable to find book!");
+    if (booksbytitle.length === 0) {
+        return res.status(404).json({ message: "Unable to find book!" });
     }
 
     // Return the matched books
-    return res.send(JSON.stringify(matchedBooks, null, 4));
+    res.send(JSON.stringify({booksbytitle}, null, 4));
 });
 
 //  Get book review
